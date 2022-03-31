@@ -112,28 +112,29 @@ module.exports = {
 
   login: (req, res) => {
     let email =  req.body.email
-    let password = md5(req.body.password)
+    let password = req.body.password
 
     if( !email || !password) res.status(402).json({message: "email dan password harus diisi."})
 
-       db.query(`select * from admin where email = '${email}' AND password = '${password}'`, (err, result)=>{
-        
-          if (err){
-            res.json({
-              err,
-              logged: false,
-              message: "Invalid username or password"
-            })
+       db.query(`select * from admin where email = '${email}'`, (err, result)=>{
+        const admin = result[0]
+          if (typeof admin === 'undefined'){
+            res.status(401).json({message: "user tidak ditemukan"})
           }else{
-            const admin = result[0]
-            const token = jwt.sign({data: admin}, SECRET_KEY)
-            res.json({
-              logged: true,
-              data: result,
-              token: token
-            })
+            if(admin.password === md5(password)){
+              const token = jwt.sign({data: admin}, SECRET_KEY)
+              res.json({
+                logged: true,
+                data: result,
+                token: token
+              })
+            }else{
+              res.json({
+                message: "Invalid password"
+              })
+            }
+            
           }
-         
         })
   }
 };
