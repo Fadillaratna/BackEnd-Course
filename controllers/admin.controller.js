@@ -119,7 +119,7 @@ module.exports = {
        db.query(`select * from admin where email = '${email}'`, (err, result)=>{
         const admin = result[0]
           if (typeof admin === 'undefined'){
-            res.status(401).json({message: "user tidak ditemukan"})
+            res.status(401).json({message: "User not fond"})
           }else{
             if(admin.password === md5(password)){
               const token = jwt.sign({data: admin}, SECRET_KEY)
